@@ -1,4 +1,6 @@
 let nomeDoUsuario;
+let destinatario;
+let tipoVisibilidade;
 
 function carregarMensagens() {
     const promise = axios.get("https://mock-api.driven.com.br/api/v4/uol/messages");
@@ -6,7 +8,7 @@ function carregarMensagens() {
     promise.then( (response) => {
         const mensagensDoServidor = response.data;
         const ulMensagens = document.querySelector(".lista-mensagem");
-        ulMensagens.innerHTML += mensagensDoServidor.map(formatarMensagem);
+        ulMensagens.innerHTML += `<ul>${mensagensDoServidor.map(formatarMensagem).join('')}</ul>`;
         window.scroll(0, document.body.scrollHeight);
     });
 }
@@ -31,15 +33,13 @@ function formatarMensagem(dados){
       tipoMensagem = "mensagem";  
     }
     
-    return `
-    <li class="${tipoMensagem}">
-        <span class="texto-transparente">(${dados.time})</span>
-        <span class="texto-negrito">${dados.from}</span>
-        <span class="texto-mensagens"> para</span>
-        <span class="texto-negrito">${dados.to}:</span>
-        <span class="texto-mensagens">${dados.text}</span>
-    </li>    
-    `;
+    return `<li class="${tipoMensagem}">
+                <span class="texto-transparente">(${dados.time})</span>
+                <span class="texto-negrito">${dados.from}</span>
+                <span> para</span>
+                <span class="texto-negrito">${dados.to}:</span>
+                <span class="texto-mensagens">${dados.text}</span>
+            </li>`;
 }
 
 function entrarSala(){
@@ -68,9 +68,9 @@ function enviarMensagem(){
 
     const promise = axios.post("https://mock-api.driven.com.br/api/v4/uol/messages", {
         from: nomeDoUsuario,
-        to: "Todos",
+        to: destinatario,
         text: mensagem,
-        type: "message"
+        type: tipoVisibilidade
     });
 
     promise.then( ()=> {
@@ -84,9 +84,6 @@ function enviarMensagem(){
 
 function postStatus(){
     const promise = axios.post("https://mock-api.driven.com.br/api/v4/uol/status", {name: nomeDoUsuario});
-    promise.then( () => {
-        console.log("A cada 5s");
-    })
 
     promise.catch( () => {
         console.log("Algum erro está acontecendo, por favor verifique!");
@@ -99,6 +96,7 @@ function recarregarPagina(){
     carregarMensagens();
     setInterval(postStatus, 5000);
     setInterval(carregarMensagens, 3000);
+    setInterval(verificarParticipantesAtivos, 10000);
 
     input.onkeydown = (e) => {
         if (e.code === 'Enter') {
@@ -106,3 +104,88 @@ function recarregarPagina(){
         }
     };
 }
+
+function acionarMenuLateral(){
+    const menuLateral = document.querySelector(".menu-lateral");
+    const fundoTransparente = document.querySelector(".fundo-transparente");
+
+    menuLateral.classList.toggle("escondido");
+    fundoTransparente.classList.toggle("fundo-escondido");
+}
+
+function selecionarVisibilidade(elemento){
+    const selecionado = document.querySelector(".visibilidade.selecionado");
+    const envio = document.querySelector(".envio");
+    console.log(envio.innerHTML);
+    
+    if(selecionado !== null){
+        selecionado.classList.remove("selecionado");
+    }
+
+    elemento.classList.add("selecionado");
+
+    
+    if(envio.innerText.includes('Reservadamente')){
+        const novoEnvio = envio.innerText.replace('(Reservadamente)','');
+        envio.innerHTML = `${novoEnvio} (${elemento.innerText})`;
+        if(elemento.innerText === 'Reservadamente'){
+            tipoVisibilidade = "private_message";
+        } else {
+            tipoVisibilidade = "message";
+        }
+    }
+    
+    else if(envio.innerText.includes('Público')) {
+        const novoEnvio = envio.innerText.replace('(Público)','');
+        envio.innerHTML = `${novoEnvio} (${elemento.innerText})`;
+        if(elemento.innerText === 'Reservadamente'){
+            tipoVisibilidade = "private_message";
+        } else {
+            tipoVisibilidade = "message";
+        }
+    }
+
+    else {
+        envio.innerHTML += ` (${elemento.innerText})`;
+        if(elemento.innerText === 'Reservadamente'){
+            tipoVisibilidade = "private_message";
+        } else {
+            tipoVisibilidade = "message";
+        }
+    }
+}
+
+function selecionarParticipante(elemento){
+    const participanteSelecionado = document.querySelector(".participante.selecionado");
+    const selecionarTodos = document.querySelector(".participantes-todos.selecionado");
+    const envio = document.querySelector(".envio");
+    destinatario = elemento.innerText;
+
+    if(participanteSelecionado !== null){
+        participanteSelecionado.classList.remove("selecionado");
+    }
+
+    if(selecionarTodos !== null){
+        selecionarTodos.classList.remove("selecionado");
+    }
+
+    elemento.classList.add("selecionado");
+    envio.innerHTML = `Enviando para ${elemento.innerText}`;
+}
+
+function verificarParticipantesAtivos(){
+    const promise = axios.get("https://mock-api.driven.com.br/api/v4/uol/participants");
+
+    promise.then( (response) => {
+        const participantesAtivos = response.data;
+        const ulParticipantes = document.querySelector(".lista-de-contatos");
+        ulParticipantes.innerHTML = "";
+
+        ulParticipantes.innerHTML += `<ul>${participantesAtivos.map((item) =>
+            `<li class="participante" onclick="selecionarParticipante(this)" data-identifier="participant">
+            <ion-icon name="person-circle"></ion-icon>${item.name}<ion-icon class="check" name="checkmark-outline">
+            </li>`
+        ).join('')}</ul>`;
+    })
+}
+verificarParticipantesAtivos();

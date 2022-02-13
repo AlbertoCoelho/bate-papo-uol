@@ -12,12 +12,13 @@
     <link rel="stylesheet" href="./assets/styles/style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="fundo-transparente fundo-escondido" onclick="acionarMenuLateral()"></div> 
   <header>
     <img src="./assets/img/logouol.png"/>
-    <ion-icon name="people-outline"></ion-icon>
+    <ion-icon name="people-outline" onclick="acionarMenuLateral()"></ion-icon>
   </header>
   <main>
     <div class="mensagens">
@@ -25,14 +26,34 @@
       </ul>
     </div>
     <footer>
+      <div class="caixa-de-mensagem">
         <input class="input-mensagem" type="text" placeholder="Escreva aqui..." />
+        <span class="envio">Enviando para Todos</span>
+      </div>
         <button data-identifier="send-message" onclick="enviarMensagem()">
             <ion-icon name="paper-plane-outline"></ion-icon>
         </button>
     </footer>
   </main>
-  <aside class="menu-lateral">
+  <aside class="menu-lateral escondido">
+    <h2 class="titulo-menu-lateral">Escolha um contato <br> para enviar mensagem:</h2>
+    <li class="participantes-todos"  onclick="selecionarParticipante(this)" data-identifier="participant">
+      <ion-icon name="people"></ion-icon>Todos<ion-icon class="check" name="checkmark-outline"></ion-icon>
+    </li>
+    <ul class="lista-de-contatos">
 
+    </ul>
+    <h2 class="visibilidade-container">Escolha a visibilidade:</h2>
+    <ul>
+      <li class="visibilidade" onclick="selecionarVisibilidade(this)" data-identifier="visibility">
+        <ion-icon name="lock-open"></ion-icon>Público<ion-icon class="check" name="checkmark-outline">
+        </ion-icon>
+      </li>
+      <li class="visibilidade" onclick="selecionarVisibilidade(this)" data-identifier="visibility">
+        <ion-icon name="lock-closed"></ion-icon>Reservadamente<ion-icon class="check" name="checkmark-outline">
+        </ion-icon>
+      </li>
+    </ul>
   </aside>
   <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
