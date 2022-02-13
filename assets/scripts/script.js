@@ -116,7 +116,6 @@ function acionarMenuLateral(){
 function selecionarVisibilidade(elemento){
     const selecionado = document.querySelector(".visibilidade.selecionado");
     const envio = document.querySelector(".envio");
-    console.log(envio.innerHTML);
     
     if(selecionado !== null){
         selecionado.classList.remove("selecionado");
