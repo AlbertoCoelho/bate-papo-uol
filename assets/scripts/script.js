@@ -8,6 +8,7 @@ function carregarMensagens() {
     promise.then( (response) => {
         const mensagensDoServidor = response.data;
         const ulMensagens = document.querySelector(".lista-mensagem");
+        ulMensagens.innerHTML = '';
         ulMensagens.innerHTML += `<ul>${mensagensDoServidor.map(formatarMensagem).join('')}</ul>`;
         window.scroll(0, document.body.scrollHeight);
     });
